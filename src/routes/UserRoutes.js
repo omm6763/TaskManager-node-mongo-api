@@ -1,57 +1,58 @@
-const express = require('express')
-const AuthMiddleware = require('../middlewares/AuthMiddleware')
-const UserMiddleware = require('../middlewares/UserMiddleware')
-const UserController = require('../controllers/UserControllers')
+const express = require('express');
+const AuthMiddleware = require('../middlewares/AuthMiddleware');
+const UserMiddleware = require('../middlewares/UserMiddleware');
+const UserController = require('../controllers/UserControllers');
 const {
   validateCreateUser,
   validateUpdateUser,
   validateLoginUser,
   validateUserId,
-} = require('../utils/validations')
-const router = express.Router()
+} = require('../utils/validations');
 
-// Obtener todos los usuarios [GET]
-router.get('/', UserController.getAllUser)
+const router = express.Router();
 
-// Crear un usuario [POST]
-router.post('/', validateCreateUser, UserController.createUser)
+// Get all users [GET]
+router.get('/', UserController.getAllUser);
 
-// Iniciar sesión [POST]
-router.post('/login', validateLoginUser, UserController.loginUser)
+// Create a new user [POST]
+router.post('/', validateCreateUser, UserController.createUser);
 
-// Obtener un usuario por su id [GET]
+// Login a user [POST]
+router.post('/login', validateLoginUser, UserController.loginUser);
+
+// Get a user by ID [GET]
 router.get(
   '/:id',
   AuthMiddleware.authenticate,
   UserMiddleware.findUser,
   UserController.getUserById
-)
+);
 
-// Actualizar parcial un usuario [PATCH]
+// Partially update a user [PATCH]
 router.patch(
   '/:id',
   validateUpdateUser,
   AuthMiddleware.authenticate,
   UserMiddleware.findUser,
   UserController.updateUserPartial
-)
+);
 
-// Actualizar completo un usuario [PUT]
+// Fully update a user [PUT]
 router.put(
   '/:id',
   validateUpdateUser,
   AuthMiddleware.authenticate,
   UserMiddleware.findUser,
   UserController.updateUserComplete
-)
+);
 
-// Eliminar un usuario [DELETE]
+// Delete a user [DELETE]
 router.delete(
   '/:id',
   validateUserId,
   AuthMiddleware.authenticate,
   UserMiddleware.findUser,
   UserController.deleteUser
-)
+);
 
-module.exports = router
+module.exports = router;

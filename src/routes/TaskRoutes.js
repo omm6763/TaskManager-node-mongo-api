@@ -9,10 +9,10 @@ const {
 } = require('../utils/validations')
 const router = express.Router()
 
-// Obtener todas las tareas [GET]
+// Get all tasks [GET]
 router.get('/', AuthMiddleware.authenticate, TaskController.getAllTasks)
 
-// Crear una nueva tarea [POST]
+// Create a new task [POST]
 router.post(
   '/',
   validateCreateTask,
@@ -20,7 +20,7 @@ router.post(
   TaskController.createTask
 )
 
-// Obtener una tarea por su id [GET]
+// Get a task by its id [GET]
 router.get(
   '/:id',
   AuthMiddleware.authenticate,
@@ -28,7 +28,7 @@ router.get(
   TaskController.getTask
 )
 
-// Actualizar una tarea [PUT]
+// Update a task [PUT]
 router.put(
   '/:id',
   validateUpdateTask,
@@ -37,7 +37,7 @@ router.put(
   TaskController.updateTask
 )
 
-// Eliminar una tarea [DELETE]
+// Delete a task [DELETE]
 router.delete(
   '/:id',
   validateTaskId,

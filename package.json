@@ -8,7 +8,7 @@
     "start": "nodemon src/app.js"
   },
   "keywords": [],
-  "author": "Luis M Santos",
+  "author": "Debakanta",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "3.1.0"

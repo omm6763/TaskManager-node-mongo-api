@@ -4,7 +4,8 @@ exports.findUser = async (req, res, next) => {
   let user
   const { id } = req.params
 
-  // expresion regular para validar que el id sea un ObjectId de MongoDB
+  // Regular expression to validate that the id is a MongoDB ObjectId
+
   if (!id.match(/^[0-9a-fA-F]{24}$/)) {
     return res.status(400).json({ message: 'Invalid task id' })
   }

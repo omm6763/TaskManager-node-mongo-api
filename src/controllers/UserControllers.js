@@ -4,26 +4,29 @@ const dotenv = require('dotenv')
 const { validationResult } = require('express-validator')
 dotenv.config()
 
-// Iniciar sesión [POST]
-exports.loginUser = async (req, res) => {
+// Login user [POST]
+const loginUser = async (req, res) => {
   const { email, password } = req.body
 
+  // Find user by email
   const user = await User.findOne({ email })
   if (!user) {
     return res.status(404).json({ message: 'Invalid email or password' })
   }
 
+  // Validate password
   const isMatch = await user.isValidPassword(password)
   if (!isMatch) {
     return res.status(400).json({ message: 'Invalid email or password' })
   }
 
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
+  // Create JWT
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" })
   res.json({ token })
 }
 
-// Obtener todos los usuarios [GET]
-exports.getAllUser = async (req, res) => {
+// Get all users [GET]
+const getAllUser = async (req, res) => {
   try {
     const users = await User.find()
     res.json(users)
@@ -32,13 +35,13 @@ exports.getAllUser = async (req, res) => {
   }
 }
 
-// Obtener un usuario por su id [GET]
-exports.getUserById = async (req, res) => {
+// Get user by ID [GET]
+const getUserById = async (req, res) => {
   res.json(res.user)
 }
 
-// Crear un usuario [POST]
-exports.createUser = async (req, res) => {
+// Create user [POST]
+const createUser = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
@@ -46,20 +49,12 @@ exports.createUser = async (req, res) => {
 
   try {
     const { name, email, password } = req.body
-
-    // Verificar si el correo electrónico ya está en uso
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return res.status(400).json({ message: 'Email already in use' })
     }
 
-    // Crear un nuevo usuario
-    const user = new User({
-      name,
-      email,
-      password,
-    })
-
+    const user = new User({ name, email, password })
     const newUser = await user.save()
     res.status(201).json(newUser)
   } catch (err) {
@@ -67,20 +62,16 @@ exports.createUser = async (req, res) => {
   }
 }
 
-// Actualizar parcial un usuario [PATCH]
-exports.updateUserPartial = async (req, res) => {
+// Partially update user [PATCH]
+const updateUserPartial = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  // Extraer el ID del usuario del token
   const userIdFromToken = req.user._id
-
-  // Extraer el ID del usuario que se está actualizando de la ruta
   const userIdFromRoute = req.params.id
 
-  // Verificar si el usuario que hace la petición es el mismo que se quiere actualizar
   if (userIdFromToken.toString() !== userIdFromRoute) {
     return res.status(403).json({ message: 'Forbidden' })
   }
@@ -93,20 +84,16 @@ exports.updateUserPartial = async (req, res) => {
   }
 }
 
-// Actualizar un usuario COMPLETO [PUT]
-exports.updateUserComplete = async (req, res) => {
+// Fully update user [PUT]
+const updateUserComplete = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  // Extraer el ID del usuario del token
   const userIdFromToken = req.user._id
-
-  // Extraer el ID del usuario que se está actualizando de la ruta
   const userIdFromRoute = req.params.id
 
-  // Verificar si el usuario que hace la petición es el mismo que se quiere actualizar
   if (userIdFromToken.toString() !== userIdFromRoute) {
     return res.status(403).json({ message: 'Forbidden' })
   }
@@ -119,15 +106,11 @@ exports.updateUserComplete = async (req, res) => {
   }
 }
 
-// Eliminar un usuario por su id [DELETE]
-exports.deleteUser = async (req, res) => {
-  // Extraer el ID del usuario del token
+// Delete user [DELETE]
+const deleteUser = async (req, res) => {
   const userIdFromToken = req.user._id
-
-  // Extraer el ID del usuario que se está actualizando de la ruta
   const userIdFromRoute = req.params.id
 
-  // Verificar si el usuario que hace la petición es el mismo que se quiere actualizar
   if (userIdFromToken.toString() !== userIdFromRoute) {
     return res.status(403).json({ message: 'Forbidden' })
   }
@@ -135,11 +118,19 @@ exports.deleteUser = async (req, res) => {
   try {
     const userDeleted = await res.user
     await userDeleted.deleteOne()
-
-    res.json({
-      message: `User ${userDeleted.name} deleted successfully!`,
-    })
+    res.json({ message: `User ${userDeleted.name} deleted successfully!` })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
+}
+
+//  Export all together
+module.exports = {
+  loginUser,
+  getAllUser,
+  getUserById,
+  createUser,
+  updateUserPartial,
+  updateUserComplete,
+  deleteUser,
 }

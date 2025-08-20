@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator')
 const Task = require('../models/TaskModel')
 
-// Obtener todas las tareas [GET]
+// Get all tasks [GET]
 exports.getAllTasks = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -16,7 +16,7 @@ exports.getAllTasks = async (req, res) => {
   }
 }
 
-// Obtener una tarea por su id [GET]
+// Get a task by ID [GET]
 exports.getTask = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -34,14 +34,14 @@ exports.getTask = async (req, res) => {
   }
 }
 
-// Crear una nueva tarea [POST]
+// Create a new task [POST]
 exports.createTask = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  // Prevent user from setting user manually
+  // Prevent user from manually setting the user field
   const { user, ...taskData } = req.body
   if (user) {
     return res.status(400).json({ message: 'Cannot set user manually' })
@@ -50,7 +50,7 @@ exports.createTask = async (req, res) => {
   try {
     const task = new Task({
       ...taskData,
-      user: req.user._id,
+      user: req.user._id, // automatically link task to logged-in user
     })
     await task.save()
     res.status(201).json(task)
@@ -59,7 +59,7 @@ exports.createTask = async (req, res) => {
   }
 }
 
-// Actualizar una tarea [PUT]
+// Update a task [PUT]
 exports.updateTask = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -72,7 +72,7 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' })
     }
 
-    Object.assign(task, req.body)
+    Object.assign(task, req.body) // merge request data into task
     const updatedTask = await task.save()
     res.json(updatedTask)
   } catch (error) {
@@ -80,7 +80,7 @@ exports.updateTask = async (req, res) => {
   }
 }
 
-// Eliminar una tarea [DELETE]
+// Delete a task [DELETE]
 exports.deleteTask = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
